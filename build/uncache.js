@@ -1,4 +1,5 @@
 import { isPrimitive } from "@rsc-utils/type-utils";
+/** attempt to call the named function on the given object. */
 function attempt(object, fnName) {
     if (typeof (object?.[fnName]) === "function") {
         object[fnName]();

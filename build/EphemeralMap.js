@@ -1,15 +1,21 @@
 import { wrapMapIterator } from "@rsc-utils/iterator-utils";
 import { EphemeralBase } from "./EphemeralBase.js";
 export class EphemeralMap extends EphemeralBase {
+    // public constructor(msToLive: number)
     [Symbol.iterator]() {
         return this.entries();
     }
     get [Symbol.toStringTag]() {
         return "EphemeralMap";
     }
+    // public get msToLive(): number
+    /** sets a value to the data and then queues up the process */
     set(key, value) {
         return super.set(key, value);
     }
+    // public clear(): void
+    // public delete(key: K): boolean
+    /** iterate the entries as [key, value] */
     entries() {
         return wrapMapIterator(this.map.keys(), key => {
             return {
@@ -26,6 +32,7 @@ export class EphemeralMap extends EphemeralBase {
     get(key) {
         return this.map.get(key)?.value;
     }
+    // public has(key: K): boolean
     keys() {
         return wrapMapIterator(this.map.keys(), key => {
             return {
@@ -34,6 +41,7 @@ export class EphemeralMap extends EphemeralBase {
             };
         });
     }
+    // public get size(): number
     values() {
         return wrapMapIterator(this.map.keys(), key => {
             return {

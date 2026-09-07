@@ -23,6 +23,8 @@ export declare abstract class EphemeralBase<K, V = K> {
     private _timer?;
     /** clean the _timer property */
     private clearTimer;
+    /** overlapping intervals can keep expired items too long */
+    private _nextTimeoutMs?;
     /** queues up the process */
     private queue;
     /** activity flag */

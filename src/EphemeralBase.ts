@@ -73,10 +73,13 @@ export abstract class EphemeralBase<K, V = K> {
 		delete this._timer;
 	}
 
+	/** overlapping intervals can keep expired items too long */
+	private _nextTimeoutMs?: number;
+
 	/** queues up the process */
 	private queue(): void {
 		if (this.map.size && !this._timer && !this._cleaning) {
-			this._timer = setTimeout(() => this.clean(), this._msToLive);
+			this._timer = setTimeout(() => this.clean(), this._nextTimeoutMs ?? this._msToLive);
 		}
 	}
 
@@ -88,6 +91,11 @@ export abstract class EphemeralBase<K, V = K> {
 		// flag as cleaning
 		this._cleaning = true;
 
+		// clear
+		this._nextTimeoutMs = undefined;
+		// initialize
+		let nextTimeoutTs: number | undefined;
+
 		// calculate cutoff time
 		const cutOff = Date.now() - this._msToLive;
 
@@ -96,17 +104,23 @@ export abstract class EphemeralBase<K, V = K> {
 
 		// iterate keys
 		for (const key of keys) {
-			// .clear() might empty the map and thus make this pointless
-			if (!this.map.size) {
-				break;
-			}
-
 			// get timestamp for key
 			const ts = this.map.get(key)?.ts ?? 0;
 
-			// remove old key
 			if (ts <= cutOff) {
+				// remove old key
 				this.delete(key);
+			}else {
+				// store ts for _nextTimeoutMs
+				nextTimeoutTs = nextTimeoutTs ? Math.min(ts, nextTimeoutTs) : ts;
+			}
+		}
+
+		if (nextTimeoutTs) {
+			const nextCutOff = nextTimeoutTs + this._msToLive;
+			const nextTimeoutMs = nextCutOff - cutOff;
+			if (nextTimeoutMs < this._msToLive) {
+				this._nextTimeoutMs = nextTimeoutMs;
 			}
 		}
 
