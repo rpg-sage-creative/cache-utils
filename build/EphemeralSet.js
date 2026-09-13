@@ -40,11 +40,19 @@ export class EphemeralSet extends EphemeralBase {
     }
     // public get size(): number
     values() {
-        return wrapSetIterator(this.map.keys(), key => {
-            return {
-                value: this.map.get(key)?.value,
-                skip: !this.has(key)
-            };
+        const array = Array.from(this.map.keys());
+        return Iterator.from({
+            next: () => {
+                while (array.length) {
+                    const key = array.shift();
+                    const value = this.map.get(key)?.value;
+                    const skip = !this.has(key);
+                    if (!skip) {
+                        return { value, done: false };
+                    }
+                }
+                return { value: undefined, done: true };
+            }
         });
     }
 }

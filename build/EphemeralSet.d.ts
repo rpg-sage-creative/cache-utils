@@ -1,5 +1,5 @@
 import { EphemeralBase } from "./EphemeralBase.js";
-export declare class EphemeralSet<V> extends EphemeralBase<V, V> implements Set<V> {
+export declare class EphemeralSet<V> extends EphemeralBase<V, V> {
     [Symbol.iterator](): SetIterator<V>;
     get [Symbol.toStringTag](): string;
     /** adds a value to the data and then queues up the process */

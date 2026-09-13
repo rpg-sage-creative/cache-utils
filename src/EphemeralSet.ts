@@ -3,7 +3,8 @@ import { EphemeralBase } from "./EphemeralBase.js";
 
 export class EphemeralSet<V>
 		extends EphemeralBase<V, V>
-		implements Set<V> {
+		// implements Set<V>
+		{
 
 	// public constructor(msToLive: number)
 
@@ -56,11 +57,20 @@ export class EphemeralSet<V>
 	// public get size(): number
 
 	public values(): SetIterator<V> {
-		return wrapSetIterator(this.map.keys(), key => {
-			return {
-				value: this.map.get(key)?.value!,
-				skip: !this.has(key)
-			};
+		const array = Array.from(this.map.keys());
+		return Iterator.from({
+			next: (): IteratorResult<V> => {
+				while (array.length) {
+					const key = array.shift();
+					const value = this.map.get(key!)?.value!;
+					const skip = !this.has(key!);
+					if (!skip) {
+						return { value, done:false };
+					}
+				}
+				return { value:undefined, done: true };
+			}
 		});
 	}
+
 }
